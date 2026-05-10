@@ -1,40 +1,51 @@
-// High-priority backup list to ensure cards always show up immediately
+// Expanded backup list - 20+ major global and regional events
 let globalEvents = [
     { label: "Halloween", date: "2026-10-31T00:00:00" },
+    { label: "Melbourne Cup", date: "2026-11-03T15:00:00" },
+    { label: "Remembrance Day", date: "2026-11-11T11:00:00" },
     { label: "Christmas Day", date: "2026-12-25T00:00:00" },
     { label: "Boxing Day", date: "2026-12-26T00:00:00" },
     { label: "New Year Eve", date: "2026-12-31T23:59:59" },
     { label: "New Year's Day", date: "2027-01-01T00:00:00" },
-    { label: "Australia Day", date: "2027-01-26T00:00:00" }
+    { label: "Australia Day", date: "2027-01-26T00:00:00" },
+    { label: "Groundhog Day", date: "2027-02-02T00:00:00" },
+    { label: "Lunar New Year", date: "2027-02-06T00:00:00" },
+    { label: "Valentine's Day", date: "2027-02-14T00:00:00" },
+    { label: "St David's Day", date: "2027-03-01T00:00:00" },
+    { label: "International Women's Day", date: "2027-03-08T00:00:00" },
+    { label: "St Patrick's Day", date: "2027-03-17T00:00:00" },
+    { label: "Good Friday", date: "2027-03-26T00:00:00" },
+    { label: "Easter Sunday", date: "2027-03-28T00:00:00" },
+    { label: "Easter Monday", date: "2027-03-29T00:00:00" },
+    { label: "Earth Day", date: "2027-04-22T00:00:00" },
+    { label: "Anzac Day", date: "2027-04-25T05:00:00" },
+    { label: "Mother's Day", date: "2027-05-09T00:00:00" },
+    { label: "Winter Solstice (AU)", date: "2027-06-21T00:00:00" },
+    { label: "Independence Day (US)", date: "2027-07-04T00:00:00" }
 ];
 
 let userCountdowns = JSON.parse(localStorage.getItem('cc_custom_data')) || [];
 
-// Fetch live holidays with improved error handling
 async function fetchHolidays() {
     try {
-        const apiUrl = 'https://nager.at';
-        // Using a more reliable proxy method
-        const response = await fetch(`https://allorigins.win{encodeURIComponent(apiUrl)}`);
+        const targetUrl = 'https://nager.at';
+        const response = await fetch(`https://corsproxy.io{encodeURIComponent(targetUrl)}`);
         
-        if (!response.ok) throw new Error('Proxy failed');
+        if (!response.ok) throw new Error('Proxy unreachable');
         
-        const resData = await response.json();
-        const data = JSON.parse(resData.contents);
+        const data = await response.json();
 
         if (Array.isArray(data)) {
             const apiEvents = data.map(e => ({
-                label: e.global ? e.name : `${e.name} (${e.counties ? e.counties.map(c => c.split('-')[1]).join(', ') : 'Regional'})`,
+                label: `${e.name} [${e.countryCode}]`,
                 date: e.date + "T00:00:00"
             }));
 
-            // Merge and remove duplicates
             const combined = [...globalEvents, ...apiEvents];
             globalEvents = Array.from(new Map(combined.map(item => [item['label'], item])).values());
-            console.log("Live events loaded successfully.");
         }
     } catch (err) {
-        console.warn("Using backup list. Live API was unreachable.");
+        console.warn("Using expanded backup list. External API unreachable.");
     }
     refreshDisplay();
 }
@@ -53,13 +64,9 @@ function getTimeRemaining(target) {
 }
 
 function refreshDisplay() {
-    // 1. Hero Timer
-    const heroTimerElement = document.getElementById('hero-timer');
-    if (heroTimerElement) {
-        heroTimerElement.innerText = getTimeRemaining("2027-01-01T00:00:00");
-    }
+    const heroTimer = document.getElementById('hero-timer');
+    if (heroTimer) heroTimer.innerText = getTimeRemaining("2027-01-01T00:00:00");
 
-    // 2. Global Events (Upcoming)
     const globalContainer = document.getElementById('major-grid');
     if (globalContainer) {
         const upcoming = globalEvents
@@ -75,7 +82,6 @@ function refreshDisplay() {
         `).join('');
     }
 
-    // 3. User Personal Countdowns
     const customContainer = document.getElementById('custom-grid');
     if (customContainer) {
         userCountdowns.sort((a, b) => new Date(a.time) - new Date(b.time));
@@ -83,7 +89,7 @@ function refreshDisplay() {
             <div class="list-item">
                 <span class="list-item-title">${item.title}</span>
                 <span class="list-item-timer">${getTimeRemaining(item.time)}</span>
-                <button class="delete-btn" onclick="removeEntry(${index})">Delete</button>
+                <button onclick="removeEntry(${index})" style="background:transparent; color:#ff4d4d; border:1px solid #ff4d4d; cursor:pointer; padding:2px 8px; border-radius:4px; font-size:10px;">Remove</button>
             </div>
         `).join('');
     }
@@ -107,7 +113,6 @@ function removeEntry(idx) {
     refreshDisplay();
 }
 
-// Start everything
 fetchHolidays();
 setInterval(refreshDisplay, 1000);
 refreshDisplay();
