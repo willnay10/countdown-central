@@ -1,14 +1,18 @@
-// 1. Massive Backup List (Ensures you always see cards)
-let globalEvents = [
+// This list is curated to ensure your site is ALWAYS full and accurate
+const globalEvents = [
+    // --- 2026 Events ---
+    { label: "Winter Solstice (AU)", date: "2026-06-21T00:00:00" },
+    { label: "Independence Day (US)", date: "2026-07-04T00:00:00" },
     { label: "Halloween", date: "2026-10-31T00:00:00" },
     { label: "Melbourne Cup", date: "2026-11-03T15:00:00" },
-    { label: "Remembrance Day", date: "2026-11-11T11:00:00" },
+    { label: "Diwali", date: "2026-11-08T00:00:00" },
     { label: "Christmas Day", date: "2026-12-25T00:00:00" },
     { label: "Boxing Day", date: "2026-12-26T00:00:00" },
     { label: "New Year Eve", date: "2026-12-31T23:59:59" },
+    
+    // --- 2027 Events ---
     { label: "New Year's Day", date: "2027-01-01T00:00:00" },
     { label: "Australia Day", date: "2027-01-26T00:00:00" },
-    { label: "Lunar New Year", date: "2027-02-06T00:00:00" },
     { label: "Valentine's Day", date: "2027-02-14T00:00:00" },
     { label: "St Patrick's Day", date: "2027-03-17T00:00:00" },
     { label: "Good Friday", date: "2027-03-26T00:00:00" },
@@ -18,41 +22,10 @@ let globalEvents = [
     { label: "King's Birthday", date: "2027-06-14T00:00:00" },
     { label: "Independence Day (US)", date: "2027-07-04T00:00:00" },
     { label: "Halloween 2027", date: "2027-10-31T00:00:00" },
-    { label: "Christmas 2027", date: "2027-12-25T00:00:00" },
-    { label: "New Year 2028", date: "2028-01-01T00:00:00" }
+    { label: "Christmas 2027", date: "2027-12-25T00:00:00" }
 ];
 
 let userCountdowns = JSON.parse(localStorage.getItem('cc_custom_data')) || [];
-
-// 2. Fetch Live Holidays using YOUR new Proxy
-async function fetchHolidays() {
-    try {
-        const targetUrl = 'https://nager.at';
-        // Using your private Cloudflare Worker proxy
-        const proxyUrl = 'https://workers.dev'; 
-        
-        const response = await fetch(`${proxyUrl}/?url=${encodeURIComponent(targetUrl)}`);
-        
-        if (!response.ok) throw new Error('Proxy unreachable');
-        
-        const data = await response.json();
-
-        if (Array.isArray(data)) {
-            const apiEvents = data.map(e => ({
-                label: `${e.name} [${e.countryCode}]`,
-                date: e.date + "T00:00:00"
-            }));
-
-            // Merge API events with our backup list, removing duplicates
-            const combined = [...globalEvents, ...apiEvents];
-            globalEvents = Array.from(new Map(combined.map(item => [item['label'], item])).values());
-            console.log("Global holidays loaded via private proxy.");
-        }
-    } catch (err) {
-        console.warn("Using backup list. Private proxy unreachable.");
-    }
-    refreshDisplay();
-}
 
 function getTimeRemaining(target) {
     const total = Date.parse(target) - Date.now();
@@ -68,9 +41,11 @@ function getTimeRemaining(target) {
 }
 
 function refreshDisplay() {
+    // 1. Update Hero Countdown
     const heroTimer = document.getElementById('hero-timer');
     if (heroTimer) heroTimer.innerText = getTimeRemaining("2027-01-01T00:00:00");
 
+    // 2. Render Curated Global Events
     const globalContainer = document.getElementById('major-grid');
     if (globalContainer) {
         const upcoming = globalEvents
@@ -79,13 +54,14 @@ function refreshDisplay() {
 
         globalContainer.innerHTML = upcoming.map((item, index) => `
             <div class="timer-card">
-                ${index === 0 ? '<span class="next-badge">WORLDWIDE NEXT</span>' : ''}
+                ${index === 0 ? '<span class="next-badge">UPCOMING NEXT</span>' : ''}
                 <h3>${item.label}</h3>
                 <div class="time-display">${getTimeRemaining(item.date)}</div>
             </div>
         `).join('');
     }
 
+    // 3. Render Custom Personal Events
     const customContainer = document.getElementById('custom-grid');
     if (customContainer) {
         userCountdowns.sort((a, b) => new Date(a.time) - new Date(b.time));
@@ -93,12 +69,13 @@ function refreshDisplay() {
             <div class="list-item">
                 <span class="list-item-title">${item.title}</span>
                 <span class="list-item-timer">${getTimeRemaining(item.time)}</span>
-                <button class="delete-btn" onclick="removeEntry(${index})">Remove</button>
+                <button onclick="removeEntry(${index})" style="background:transparent; color:#ff4d4d; border:1px solid #ff4d4d; cursor:pointer; padding:2px 8px; border-radius:4px; font-size:10px;">Remove</button>
             </div>
         `).join('');
     }
 }
 
+// Custom Event Logic
 function saveEvent() {
     const titleInput = document.getElementById('event-title');
     const timeInput = document.getElementById('event-time');
@@ -117,5 +94,6 @@ function removeEntry(idx) {
     refreshDisplay();
 }
 
-fetchHolidays();
+// Start the ticker
 setInterval(refreshDisplay, 1000);
+refreshDisplay();
