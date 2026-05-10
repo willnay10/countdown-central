@@ -1,24 +1,42 @@
-let globalEvents = [];
+// High-priority backup list to ensure cards always show up immediately
+let globalEvents = [
+    { label: "Halloween", date: "2026-10-31T00:00:00" },
+    { label: "Christmas Day", date: "2026-12-25T00:00:00" },
+    { label: "Boxing Day", date: "2026-12-26T00:00:00" },
+    { label: "New Year Eve", date: "2026-12-31T23:59:59" },
+    { label: "New Year's Day", date: "2027-01-01T00:00:00" },
+    { label: "Australia Day", date: "2027-01-26T00:00:00" }
+];
+
 let userCountdowns = JSON.parse(localStorage.getItem('cc_custom_data')) || [];
 
-// 1. Improved API Fetch with State Handling
+// Fetch live holidays with improved error handling
 async function fetchHolidays() {
     try {
-        const response = await fetch('https://allorigins.win' + encodeURIComponent('https://nager.at'));
-        const contents = await response.json();
-        const data = JSON.parse(contents.contents);
-
-        globalEvents = data.map(e => ({
-            // If it's not a national holiday, add the state codes (e.g. AU-VIC) to the name
-            label: e.global ? e.name : `${e.name} (${e.counties.map(c => c.split('-')[1]).join(', ')})`,
-            date: e.date + "T00:00:00",
-            states: e.counties // Keep track of which states this belongs to
-        }));
+        const apiUrl = 'https://nager.at';
+        // Using a more reliable proxy method
+        const response = await fetch(`https://allorigins.win{encodeURIComponent(apiUrl)}`);
         
-        refreshDisplay();
+        if (!response.ok) throw new Error('Proxy failed');
+        
+        const resData = await response.json();
+        const data = JSON.parse(resData.contents);
+
+        if (Array.isArray(data)) {
+            const apiEvents = data.map(e => ({
+                label: e.global ? e.name : `${e.name} (${e.counties ? e.counties.map(c => c.split('-')[1]).join(', ') : 'Regional'})`,
+                date: e.date + "T00:00:00"
+            }));
+
+            // Merge and remove duplicates
+            const combined = [...globalEvents, ...apiEvents];
+            globalEvents = Array.from(new Map(combined.map(item => [item['label'], item])).values());
+            console.log("Live events loaded successfully.");
+        }
     } catch (err) {
-        console.log("Using backup event list.");
+        console.warn("Using backup list. Live API was unreachable.");
     }
+    refreshDisplay();
 }
 
 function getTimeRemaining(target) {
@@ -35,30 +53,40 @@ function getTimeRemaining(target) {
 }
 
 function refreshDisplay() {
-    document.getElementById('hero-timer').innerText = getTimeRemaining("2027-01-01T00:00:00");
+    // 1. Hero Timer
+    const heroTimerElement = document.getElementById('hero-timer');
+    if (heroTimerElement) {
+        heroTimerElement.innerText = getTimeRemaining("2027-01-01T00:00:00");
+    }
 
-    // Filter out past events and sort by date
-    const upcoming = globalEvents
-        .filter(e => Date.parse(e.date) > Date.now())
-        .sort((a, b) => new Date(a.date) - new Date(b.date));
-
+    // 2. Global Events (Upcoming)
     const globalContainer = document.getElementById('major-grid');
-    globalContainer.innerHTML = upcoming.map(item => `
-        <div class="timer-card">
-            <h3>${item.label}</h3>
-            <div class="time-display">${getTimeRemaining(item.date)}</div>
-        </div>
-    `).join('');
+    if (globalContainer) {
+        const upcoming = globalEvents
+            .filter(e => Date.parse(e.date) > Date.now())
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
 
+        globalContainer.innerHTML = upcoming.map((item, index) => `
+            <div class="timer-card">
+                ${index === 0 ? '<span class="next-badge">NEXT</span>' : ''}
+                <h3>${item.label}</h3>
+                <div class="time-display">${getTimeRemaining(item.date)}</div>
+            </div>
+        `).join('');
+    }
+
+    // 3. User Personal Countdowns
     const customContainer = document.getElementById('custom-grid');
-    userCountdowns.sort((a, b) => new Date(a.time) - new Date(b.time));
-    customContainer.innerHTML = userCountdowns.map((item, index) => `
-        <div class="list-item">
-            <span class="list-item-title">${item.title}</span>
-            <span class="list-item-timer">${getTimeRemaining(item.time)}</span>
-            <button onclick="removeEntry(${index})" style="background:transparent; color:#ff4d4d; border:1px solid #ff4d4d; cursor:pointer; padding:2px 8px; border-radius:4px; font-size:10px;">Remove</button>
-        </div>
-    `).join('');
+    if (customContainer) {
+        userCountdowns.sort((a, b) => new Date(a.time) - new Date(b.time));
+        customContainer.innerHTML = userCountdowns.map((item, index) => `
+            <div class="list-item">
+                <span class="list-item-title">${item.title}</span>
+                <span class="list-item-timer">${getTimeRemaining(item.time)}</span>
+                <button class="delete-btn" onclick="removeEntry(${index})">Delete</button>
+            </div>
+        `).join('');
+    }
 }
 
 function saveEvent() {
@@ -79,5 +107,7 @@ function removeEntry(idx) {
     refreshDisplay();
 }
 
+// Start everything
 fetchHolidays();
 setInterval(refreshDisplay, 1000);
+refreshDisplay();
