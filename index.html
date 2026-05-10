@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown Central</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="nav-container">
+            <div class="logo">COUNTDOWN CENTRAL</div>
+            <nav>
+                <a href="#global">Upcoming</a>
+                <a href="#custom">Personal</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <p class="hero-welcome">Welcome to Countdown Central</p>
+            <div class="hero-main-timer-box">
+                <p class="hero-timer-label">Countdown to 2027</p>
+                <div id="hero-timer" class="main-timer">00d 00h 00m 00s</div>
+            </div>
+            <div class="hero-divider"></div>
+            <h1>The ultimate hub for tracking global milestones and personal goals.</h1>
+        </div>
+    </section>
+
+    <main class="content-wrapper">
+        <section id="global">
+            <h2 class="section-title">Upcoming Events</h2>
+            <div class="scroll-wrapper">
+                <div id="major-grid" class="horizontal-scroll blue-scrollbar"></div>
+            </div>
+        </section>
+
+        <section id="custom">
+            <h2 class="section-title">Personal Countdown Creator</h2>
+            <div class="creator-container">
+                <div class="input-panel">
+                    <input type="text" id="event-title" placeholder="What's happening?">
+                    <input type="datetime-local" id="event-time">
+                    <button onclick="saveEvent()">Create</button>
+                </div>
+                <div id="custom-grid" class="vertical-list"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Countdown Central. Real-time accuracy enabled.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

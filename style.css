@@ -1,0 +1,92 @@
+:root {
+    --bg-dark: #0d1b2a;
+    --accent: #4cc9f0;
+    --accent-deep: #1e6091;
+    --text-main: #e0e1dd;
+    --card-glass: rgba(65, 90, 119, 0.2);
+    --border-light: rgba(224, 225, 221, 0.1);
+}
+
+body {
+    margin: 0; padding: 0;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    line-height: 1.6;
+    scroll-behavior: smooth;
+}
+
+header {
+    background: rgba(13, 27, 42, 0.95);
+    backdrop-filter: blur(15px);
+    position: fixed; width: 100%; top: 0; z-index: 1000;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.nav-container {
+    max-width: 1200px; margin: 0 auto; padding: 15px 20px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+
+.logo { font-weight: bold; letter-spacing: 3px; font-size: 1.2rem; color: var(--accent); }
+nav a { color: var(--text-main); text-decoration: none; margin-left: 25px; font-size: 0.8rem; text-transform: uppercase; }
+
+.hero {
+    height: 90vh;
+    background: url('hero.jpg') no-repeat center center/cover;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; text-align: center;
+    padding: 0 20px;
+}
+
+.hero-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(to bottom, transparent, var(--bg-dark));
+}
+
+.hero-content { position: relative; z-index: 1; max-width: 900px; }
+.hero-welcome { color: var(--accent); text-transform: uppercase; letter-spacing: 4px; font-size: 0.9rem; margin-bottom: 30px; font-weight: bold; }
+.hero-timer-label { text-transform: uppercase; letter-spacing: 5px; font-size: 1rem; opacity: 0.7; margin-bottom: 10px; }
+.main-timer { font-size: clamp(2rem, 8vw, 5.5rem); font-weight: 800; color: white; text-shadow: 0 0 40px rgba(76, 201, 240, 0.5); }
+.hero-divider { width: 80px; height: 2px; background: var(--accent); margin: 40px auto; }
+.hero-content h1 { font-size: clamp(1rem, 3.5vw, 1.8rem); font-weight: 300; color: white; letter-spacing: 1px; }
+
+.content-wrapper { max-width: 1200px; margin: 60px auto; padding: 0 20px; }
+.section-title { border-left: 4px solid var(--accent); padding-left: 15px; margin-bottom: 40px; font-weight: 400; text-transform: uppercase; letter-spacing: 2px; }
+
+.horizontal-scroll { display: flex; overflow-x: auto; gap: 20px; padding-bottom: 25px; }
+.horizontal-scroll .timer-card { flex: 0 0 320px; }
+
+.blue-scrollbar::-webkit-scrollbar { height: 10px; }
+.blue-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
+.blue-scrollbar::-webkit-scrollbar-thumb { 
+    background: linear-gradient(to right, var(--accent-deep), var(--accent)); 
+    border-radius: 10px; border: 2px solid var(--bg-dark);
+}
+
+.input-panel {
+    background: var(--card-glass); padding: 15px; border-radius: 8px;
+    display: flex; gap: 10px; border: 1px solid var(--border-light); margin-bottom: 20px;
+}
+
+input { background: #1b263b; border: 1px solid #334155; color: white; padding: 10px; flex: 1; border-radius: 4px; }
+button { background: var(--accent); color: var(--bg-dark); border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 4px; }
+
+.vertical-list { display: flex; flex-direction: column; gap: 10px; }
+.list-item {
+    background: var(--card-glass); border: 1px solid var(--border-light);
+    padding: 15px 25px; border-radius: 6px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+
+.list-item-title { font-weight: bold; color: var(--accent); font-size: 1rem; }
+.list-item-timer { font-family: monospace; font-size: 1.1rem; }
+
+.timer-card {
+    background: var(--card-glass); border: 1px solid var(--border-light);
+    padding: 30px 20px; border-radius: 8px; backdrop-filter: blur(10px);
+}
+
+.time-display { font-size: 1.6rem; font-weight: bold; font-family: monospace; }
+
+footer { padding: 60px 20px; text-align: center; border-top: 1px solid var(--border-light); font-size: 0.7rem; opacity: 0.5; }
